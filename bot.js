@@ -1,18 +1,19 @@
 const Telegraf = require('telegraf')
 const {Markup} = Telegraf
 const config = require('./config')
-const dataService = require('./dataservice')
 const bot = new Telegraf(config.botToken)
 const fetch = require('node-fetch');
 const session = require('telegraf/session')
-const chalk = require('chalk'); // debug purposes 
-const dataservice = require('./dataservice')
-const log = console.log; // debug purposes 
+const chalk = require('chalk'); // debug purposes
+const dataservice = require('./dataserviceold')
+
+const log = console.log;
+
 var globalCounter = 0;
 bot.use(session())
 // load users into an array
-dataService.loadUsers();
-// keep the refrence of timers 
+dataservice.loadUsers();
+// keep the refrence of timers
 var timers = {}
 // useful functions and utilities
 function toPersianDigits(str){
@@ -23,9 +24,8 @@ function toPersianDigits(str){
 function hourToMillis(String){
   return parseInt(String) * 60 * 60 * 1000
 }
-  // API data utilities
 async function showMainScene(ctx){
-  ctx.deleteMessage(dataService.getActiveMessageId(ctx.update.message.chat.id)).catch((e) => {console.log('previous message not found')})
+  ctx.deleteMessage(dataservice.getActiveMessageId(ctx.update.message.chat.id)).catch((e) => {console.log('previous message not found')})
   await fetch('https://api.salav.at/data/salavat/count.json?pwa')
       .then(res => res.json())
       .then(body => {
@@ -40,9 +40,9 @@ async function showMainScene(ctx){
         Markup.urlButton(`تعداد کل صلوات ها  ${toPersianDigits(globalCounter.toString())}`, 'https://salav.at')
     ],{columns: 1}).extra()
   ).then((ctx)=>{
-    dataService.setActiveMessageId(ctx.chat.id.toString(),ctx.message_id.toString())
+    dataservice.setActiveMessageId(ctx.chat.id.toString(),ctx.message_id.toString())
   })
-  bot.action(['one','ten'],function(cbx){ 
+  bot.action(['one','ten'],function(cbx){
     switch(cbx.update.callback_query.data){
       case 'one':
           postData(ctx,cbx,1)
@@ -63,47 +63,46 @@ function showConfigScene(ctx){
         Markup.callbackButton('هر ۴۸ ساعت ⌚', '48'),
       ],{columns: 1}).extra()
     ).then((ctx)=>{
-      dataService.setActiveMessageId(ctx.chat.id.toString(),ctx.message_id.toString())
+      dataservice.setActiveMessageId(ctx.chat.id.toString(),ctx.message_id.toString())
     })
-    bot.action(['6','12','24','48'],function(cbx){ 
-      log(ctx)
+    bot.action(['6','12','24','48'],function(cbx){
       switch(cbx.update.callback_query.data){
         case '6':
-            dataService.setCounterInterval(cbx.chat.id, 6)
+            dataservice.setCounterInterval(cbx.chat.id, 6)
             cbx.answerCbQuery('پیام صلوات هر ۶ ساعت ارسال می‌گردد ✅')
             break;
         case '12':
-            dataService.setCounterInterval(cbx.chat.id, 12)
+            dataservice.setCounterInterval(cbx.chat.id, 12)
             cbx.answerCbQuery('پیام صلوات هر ۱۲ ساعت ارسال می‌گردد ✅')
             break;
-        case '24': 
-            dataService.setCounterInterval(cbx.chat.id, 24);
+        case '24':
+            dataservice.setCounterInterval(cbx.chat.id, 24);
             cbx.answerCbQuery('پیام صلوات هر ۲۴ ساعت ارسال می‌گردد ✅')
             break;
         case '48':
-            dataService.setCounterInterval(cbx.chat.id, 48);
+            dataservice.setCounterInterval(cbx.chat.id, 48);
             cbx.answerCbQuery('پیام صلوات هر ۴۸ ساعت ارسال می‌گردد ✅')
             break;
       }
       showMainScene(ctx)
       timers[ctx.update.message.chat.id] = setInterval(function(){
         showMainScene(ctx)
-      },hourToMillis(dataService.getCounterInterval(ctx.update.message.from.id)))
+      },hourToMillis(dataservice.getCounterInterval(ctx.update.message.chat.id)))
     })
 }
 //
-// functions for returning frequent string templates 
+// functions for returning frequent string templates
 function showChatCounter(ctx){
-    switch(dataService.getChatType(ctx.update.message.chat.id)){
+    switch(dataservice.getChatType(ctx.update.message.chat.id)){
       case 'private':
-        return   `شما تا الان ${toPersianDigits(dataService.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده‌اید`
+        return   `شما تا الان ${toPersianDigits(dataservice.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده‌اید`
       case 'group':
-        return   `در این گروه تا الان ${toPersianDigits(dataService.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده شده`
+        return   `در این گروه تا الان ${toPersianDigits(dataservice.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده شده`
       case 'channel':
-        return   `در این کانال تا الان ${toPersianDigits(dataService.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده شده`
+        return   `در این کانال تا الان ${toPersianDigits(dataservice.getCounter(ctx.update.message.chat.id).toString())} صلوات فرستاده شده`
     }
   }
-      
+
 function postData(ctx,cbx,int){
   const requestBody = {
     data: { count: int, _id: "salavatCount" },
@@ -117,7 +116,7 @@ function postData(ctx,cbx,int){
   })
     .then(res => res.json())
     .then(json => {
-      dataservice.setCounter(ctx.update.message.chat.id,dataService.getCounter(ctx.update.message.chat.id) + int)
+      dataservice.setCounter(ctx.update.message.chat.id,dataservice.getCounter(ctx.update.message.chat.id) + int)
       cbx.editMessageText(
         `همین الان برای سلامتی و فرج امام‌زمان علیه‌السلام صلوات بفرست` + '\n' + ` توی سایت salav.at ثبت میشه`,
         Markup.inlineKeyboard([
@@ -131,31 +130,29 @@ function postData(ctx,cbx,int){
       int == 1 ?   cbx.answerCbQuery('یک صلوات شما با موفقیت ثبت شد ✅') :   cbx.answerCbQuery('ده صلوات شما با موفقیت ثبت شد ✅');
     });
 }
-// help command 
+// help command
 const helpMessage = `🔻 با اضافه کردن این روبات به گروه‌ها و کانال‌های خودتون، توی فواصل زمانی دلخواه، پیام نذر صلوات به صورت اتوماتیک ارسال میشه.
 برای شروع 
 /start@Salav_at_bot
 رو بزنید`
 bot.command(['help','help@Salav_at_bot'],(ctx) => {ctx.reply(helpMessage)})
 // launching bot
+bot.command(['setting','setting@Salav_at_bot'],(ctx) => {
+  clearInterval(timers[ctx.update.message.chat.id])
+  showConfigScene(ctx)})
 
-bot.command('test',(ctx) => {
-  console.log(dataService.getUserList())
-  dataService.setCounter(ctx.update.message.chat.id,100)
-})
 
 bot.command(['start@Salav_at_bot','start'],(ctx) => {
-
-  var userList = dataService.getUserList();
+  var userList = dataservice.getUserList();
   // checks wether the user is available in the JSON file or not
   if(userList.includes(ctx.update.message.chat.id.toString())){
       showMainScene(ctx)
     timers[ctx.update.message.chat.id] = setInterval(function(){
       showMainScene(ctx)
-    },hourToMillis(dataService.getCounterInterval(ctx.update.message.from.id)))
+    },hourToMillis(dataservice.getCounterInterval(ctx.update.message.chat.id)))
   } else {
-    // registering a new user 
-    dataService.registerUser(ctx.update.message) 
+    // registering a new user
+    dataservice.registerUser(ctx.update.message)
     showConfigScene(ctx)
   }
 })

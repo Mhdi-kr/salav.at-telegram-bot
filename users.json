@@ -1,1 +1,51 @@
-{"585602446":{"enabled":true,"data":{"from":{"id":585602446,"is_bot":false,"first_name":"Mahdi","last_name":"Karimi","username":"mhdi_kr_1999","language_code":"en"},"chat":{"id":585602446,"first_name":"Mahdi","last_name":"Karimi","username":"mhdi_kr_1999","type":"private"}},"counter":{"value":16,"interval":6,"activeMessageId":"3477"}}}
+{
+  "585602446": {
+    "enabled": true,
+    "data": {
+      "from": {
+        "id": 585602446,
+        "is_bot": false,
+        "first_name": "Mahdi",
+        "last_name": "Karimi",
+        "username": "mhdi_kr_1999",
+        "language_code": "en"
+      },
+      "chat": {
+        "id": 585602446,
+        "first_name": "Mahdi",
+        "last_name": "Karimi",
+        "username": "mhdi_kr_1999",
+        "type": "private"
+      }
+    },
+    "counter": {
+      "value": 1,
+      "interval": 24,
+      "activeMessageId": "3564"
+    }
+  },
+  "-463678783": {
+    "enabled": true,
+    "data": {
+      "from": {
+        "id": 585602446,
+        "is_bot": false,
+        "first_name": "Mahdi",
+        "last_name": "Karimi",
+        "username": "mhdi_kr_1999",
+        "language_code": "en"
+      },
+      "chat": {
+        "id": -463678783,
+        "title": "bot debugger",
+        "type": "group",
+        "all_members_are_administrators": true
+      }
+    },
+    "counter": {
+      "value": 0,
+      "interval": 6,
+      "activeMessageId": "3561"
+    }
+  }
+}
