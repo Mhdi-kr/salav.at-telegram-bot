@@ -160,9 +160,9 @@ bot.command(['setting', 'setting@Salav_at_bot'], (ctx) => {
 bot.command(['start', 'start@Salav_at_bot'], (ctx) => {
     // checks whether the user is available in the JSON file or not
     if (dataservice.getUserList().includes(ctx.update.message.chat.id.toString())) {
-
         // if available it will show the main scene
         showMainScene(ctx)
+        delete timers[ctx.update.message.chat.id]
         timers[ctx.update.message.chat.id] = setInterval(function () {
             showMainScene(ctx)
         }, hourToMillis(dataservice.getCounterInterval(ctx.update.message.chat.id)))

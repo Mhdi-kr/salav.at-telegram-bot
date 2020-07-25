@@ -21,6 +21,7 @@ function saveUsers() {
         })
     }
 }
+
 function registerUser(msg) {
     const uid = msg.chat.id;
     const usr = {
@@ -32,41 +33,77 @@ function registerUser(msg) {
     saveUsers();
 }
 
+function assert(uid) {
+    if (users[uid]) {
+        if(users[uid].counter){
+            if('value' in users[uid].counter && 'interval' in users[uid].counter && 'activeMessageId' in users[uid].counter){
+                return true
+            } else {
+                users[uid].counter.value = 0;
+                users[uid].counter.interval = 6;
+                users[uid].counter.activeMessageId = 0;
+            }
+        } else {
+            users[uid].counter = {};
+            users[uid].counter.value = 0;
+            users[uid].counter.interval = 6;
+            users[uid].counter.activeMessageId = 0;
+            saveUsers();
+        }
+    } else {
+        users[uid] = {
+            enabled: true,
+            data: {from: undefined, chat: undefined, error: "user was not initialized properly"},
+            counter: {"0": {"value": -1, interval: 100, activeMessageId: 0}}
+        };
+        saveUsers();
+    }
+}
+
 function getUser(uid) {
+    assert(uid)
     return users[uid];
 }
 
 function getUserList() {
     return Object.keys(users);
 }
+
 function setCounter(uid, val) {
+    assert(uid)
     users[uid].counter.value = val;
     saveUsers();
 }
 
 function setCounterInterval(uid, interval) {
+    assert(uid)
     users[uid].counter.interval = interval;
     saveUsers();
 }
 
 function setActiveMessageId(uid, activeMessageId) {
+    assert(uid)
     users[uid].counter.activeMessageId = activeMessageId;
     saveUsers();
 }
 
 function getCounter(uid) {
+    assert(uid)
     return users[uid].counter.value;
 }
 
 function getCounterInterval(uid) {
+    assert(uid)
     return users[uid].counter.interval;
 }
 
 function getActiveMessageId(uid) {
+    assert(uid)
     return users[uid].counter.activeMessageId;
 }
 
 function getChatType(uid) {
+    assert(uid)
     return users[uid].data.chat.type;
 }
 
