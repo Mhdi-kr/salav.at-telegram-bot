@@ -19,9 +19,9 @@
       }
     },
     "counter": {
-      "value": 1,
-      "interval": 24,
-      "activeMessageId": "3564"
+      "value": 6,
+      "interval": 6,
+      "activeMessageId": "3698"
     }
   },
   "-463678783": {
@@ -43,9 +43,9 @@
       }
     },
     "counter": {
-      "value": 0,
+      "value": 15,
       "interval": 6,
-      "activeMessageId": "3561"
+      "activeMessageId": "3696"
     }
   }
 }

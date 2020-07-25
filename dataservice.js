@@ -1,30 +1,33 @@
-const fs = import('fs')
-var usrFileName = "./users.json";
+const fs = require('fs')
+const userJsonFile = "./users.json";
 
-var users = {};
-var fileLocked = false;
+let users = {};
+let fileLocked = false;
 
 function loadUsers() {
-    fs.readFile(usrFileName, (err, data) => {
+    fs.readFile(userJsonFile, (err, data) => {
         if (err) throw err;
         users = JSON.parse(data);
     });
 }
 
 function saveUsers() {
-    if(!fileLocked){
+    if (!fileLocked) {
         fileLocked = true;
         var json = JSON.stringify(users);
-        fs.writeFile(usrFileName, json, 'utf8', function (err) {
+        fs.writeFile(userJsonFile, json, 'utf8', function (err) {
             if (err) throw err;
             fileLocked = false;
         })
     }
 }
-
 function registerUser(msg) {
-    var uid = msg.chat.id;
-    var usr = {enabled: true, data: {from: msg.from, chat: msg.chat}, counter:{value:0,interval:6,activeMessageId:0}};
+    const uid = msg.chat.id;
+    const usr = {
+        enabled: true,
+        data: {from: msg.from, chat: msg.chat},
+        counter: {value: 0, interval: 6, activeMessageId: 0}
+    };
     users[uid] = usr;
     saveUsers();
 }
@@ -36,48 +39,42 @@ function getUser(uid) {
 function getUserList() {
     return Object.keys(users);
 }
-
-function setMetaData(uid, key, val) {
-    users[uid].data[key] = val;
-    saveUsers();
-}
-
-function getMetaData(uid, key) {
-    return users[uid].data[key];
-}
-
 function setCounter(uid, val) {
     users[uid].counter.value = val;
     saveUsers();
 }
-function setCounterInterval(uid, interval){
+
+function setCounterInterval(uid, interval) {
     users[uid].counter.interval = interval;
     saveUsers();
 }
-function setActiveMessageId(uid, activeMessageId){
+
+function setActiveMessageId(uid, activeMessageId) {
     users[uid].counter.activeMessageId = activeMessageId;
     saveUsers();
 }
+
 function getCounter(uid) {
     return users[uid].counter.value;
 }
-function getCounterInterval(uid){
+
+function getCounterInterval(uid) {
     return users[uid].counter.interval;
 }
-function getActiveMessageId(uid){
+
+function getActiveMessageId(uid) {
     return users[uid].counter.activeMessageId;
 }
 
-function getChatType(uid){
+function getChatType(uid) {
     return users[uid].data.chat.type;
 }
 
 module.exports = {
     loadUsers,
+    getUser,
     registerUser,
     getUserList,
-    setMetaData,
-    getMetaData,
     setCounter,
     getCounter,
     setCounterInterval,
